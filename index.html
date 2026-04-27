@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TECH4ED — Technology for Education</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0e1a;
+      --bg2: #0f1525;
+      --surface: #141929;
+      --border: #1e2740;
+      --accent: #00e5ff;
+      --accent2: #7c3aed;
+      --accent3: #f59e0b;
+      --text: #e8edf8;
+      --muted: #6b7a99;
+      --glow: 0 0 40px rgba(0,229,255,0.15);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform 0.1s ease, width 0.2s, height 0.2s, background 0.2s;
+      mix-blend-mode: screen;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--accent);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: transform 0.18s ease, width 0.3s, height 0.3s, opacity 0.3s;
+      opacity: 0.5;
+    }
+    body:hover .cursor { opacity: 1; }
+
+    /* Grid noise overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 3rem;
+      background: rgba(10,14,26,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .nav-logo span { color: var(--accent); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    .nav-cta {
+      background: var(--accent);
+      color: #0a0e1a;
+      border: none;
+      padding: 0.6rem 1.4rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: none;
+      font-weight: 500;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .nav-cta:hover { box-shadow: 0 0 24px rgba(0,229,255,0.4); transform: translateY(-1px); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+      padding: 8rem 3rem 4rem;
+    }
+    .hero-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      pointer-events: none;
+    }
+    .blob1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,229,255,0.12), transparent 70%);
+      top: -100px; left: -200px;
+      animation: blobFloat 10s ease-in-out infinite;
+    }
+    .blob2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(124,58,237,0.15), transparent 70%);
+      bottom: -100px; right: -100px;
+      animation: blobFloat 14s ease-in-out infinite reverse;
+    }
+    @keyframes blobFloat {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(30px, -30px) scale(1.05); }
+    }
+
+    .hero-inner {
+      max-width: 900px;
+      text-align: center;
+      position: relative; z-index: 1;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      border: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 2rem;
+      animation: fadeUp 0.8s ease both;
+    }
+    .hero-tag::before { content: '◆'; font-size: 0.5rem; }
+
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(3.5rem, 8vw, 7rem);
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.8s 0.1s ease both;
+    }
+    .hero-title .line { display: block; }
+    .hero-title .accent { color: var(--accent); position: relative; }
+    .hero-title .accent::after {
+      content: '';
+      position: absolute;
+      bottom: 4px; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+      opacity: 0.3;
+    }
+
+    .hero-sub {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+      animation: fadeUp 0.8s 0.2s ease both;
+    }
+
+    .hero-actions {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+      animation: fadeUp 0.8s 0.3s ease both;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0e1a;
+      border: none;
+      padding: 0.9rem 2.2rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: none;
+      font-weight: 500;
+      transition: box-shadow 0.2s, transform 0.2s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-primary:hover { box-shadow: 0 0 32px rgba(0,229,255,0.5); transform: translateY(-2px); }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.9rem 2.2rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: border-color 0.2s, color 0.2s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    .hero-stats {
+      display: flex; gap: 3rem; justify-content: center; margin-top: 4rem;
+      animation: fadeUp 0.8s 0.4s ease both;
+      border-top: 1px solid var(--border);
+      padding-top: 2.5rem;
+    }
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      display: block;
+    }
+    .stat-label { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* MARQUEE */
+    .marquee-wrap {
+      overflow: hidden; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 1rem 0; background: var(--surface);
+    }
+    .marquee-track {
+      display: flex; gap: 3rem;
+      animation: marquee 20s linear infinite;
+      width: max-content;
+    }
+    .marquee-item {
+      font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+      white-space: nowrap; display: flex; align-items: center; gap: 1rem;
+    }
+    .marquee-item::after { content: '◆'; color: var(--accent); font-size: 0.5rem; }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* SECTION COMMONS */
+    section { position: relative; z-index: 1; }
+    .section-label {
+      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.75rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .section-label::before { content: ''; width: 24px; height: 1px; background: var(--accent); }
+    .section-title {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: clamp(2rem, 4vw, 3rem); line-height: 1.05;
+      letter-spacing: -0.02em; margin-bottom: 1rem;
+    }
+    .section-body {
+      font-family: 'Fraunces', serif; font-style: italic; font-weight: 300;
+      color: var(--muted); line-height: 1.8; font-size: 1rem;
+    }
+
+    /* FEATURES */
+    .features { padding: 7rem 3rem; }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5px;
+      border: 1.5px solid var(--border); max-width: 1200px; margin: 4rem auto 0;
+    }
+    .feature-card {
+      background: var(--surface);
+      padding: 2.5rem;
+      border: 1.5px solid var(--border);
+      position: relative; overflow: hidden;
+      transition: background 0.3s;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .feature-card:hover::before { transform: scaleX(1); }
+    .feature-card:hover { background: #161c2e; }
+    .feature-icon {
+      width: 48px; height: 48px; margin-bottom: 1.5rem;
+      background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(124,58,237,0.15));
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+    .feature-name {
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+    .feature-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.7; }
+
+    /* COURSES */
+    .courses { padding: 7rem 3rem; background: var(--bg2); }
+    .courses-header { max-width: 1200px; margin: 0 auto 3rem; }
+    .courses-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 1.5rem; max-width: 1200px; margin: 0 auto;
+    }
+    .course-card {
+      background: var(--surface); border: 1px solid var(--border);
+      overflow: hidden; transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .course-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+    .course-thumb {
+      height: 180px;
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3.5rem;
+    }
+    .thumb-ai { background: linear-gradient(135deg, #0a1628, #0e2040, #003366); }
+    .thumb-code { background: linear-gradient(135deg, #0d1f0d, #162a16, #1a3a1a); }
+    .thumb-data { background: linear-gradient(135deg, #1a0a28, #240d3a, #2e0f4a); }
+    .thumb-cyber { background: linear-gradient(135deg, #1a0a0a, #2a1010, #3a1515); }
+    .thumb-web { background: linear-gradient(135deg, #0a1a1a, #0d2525, #0f3030); }
+    .thumb-robot { background: linear-gradient(135deg, #1a1200, #2a1e00, #3a2a00); }
+
+    .course-thumb-grid {
+      position: absolute; inset: 0; opacity: 0.15;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .course-body { padding: 1.5rem; }
+    .course-tag {
+      display: inline-block;
+      font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--accent); border: 1px solid rgba(0,229,255,0.3);
+      padding: 0.2rem 0.6rem; margin-bottom: 0.75rem;
+    }
+    .course-name {
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem;
+      margin-bottom: 0.5rem;
+    }
+    .course-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.65; margin-bottom: 1.2rem; }
+    .course-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid var(--border); padding-top: 1rem;
+    }
+    .course-level { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; }
+    .course-enroll {
+      font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent); cursor: none; transition: opacity 0.2s;
+      background: none; border: none; font-family: 'DM Mono', monospace;
+    }
+    .course-enroll:hover { opacity: 0.6; }
+
+    /* HOW IT WORKS */
+    .how { padding: 7rem 3rem; }
+    .how-inner { max-width: 900px; margin: 0 auto; }
+    .how-steps { margin-top: 3.5rem; display: flex; flex-direction: column; gap: 0; }
+    .how-step {
+      display: grid; grid-template-columns: 80px 1fr;
+      gap: 2rem; padding: 2rem 0;
+      border-bottom: 1px solid var(--border);
+      opacity: 0; transform: translateX(-20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .how-step.visible { opacity: 1; transform: translateX(0); }
+    .step-num {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 3rem;
+      color: var(--border); line-height: 1;
+      position: relative;
+    }
+    .step-num::after {
+      content: attr(data-n);
+      position: absolute; inset: 0;
+      color: var(--accent); opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .how-step:hover .step-num::after { opacity: 1; }
+    .step-content h3 {
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 1.2rem; margin-bottom: 0.5rem;
+    }
+    .step-content p { font-size: 0.83rem; color: var(--muted); line-height: 1.7; }
+
+    /* TESTIMONIALS */
+    .testimonials { padding: 7rem 3rem; background: var(--bg2); }
+    .testi-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem; max-width: 1200px; margin: 3.5rem auto 0;
+    }
+    .testi-card {
+      background: var(--surface); border: 1px solid var(--border); padding: 2rem;
+      position: relative;
+    }
+    .testi-quote {
+      font-family: 'Fraunces', serif; font-style: italic; font-weight: 300;
+      font-size: 1rem; line-height: 1.75; color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+    .testi-quote::before {
+      content: '"'; font-size: 3rem; color: var(--accent); opacity: 0.4;
+      line-height: 0; vertical-align: -0.6rem; margin-right: 0.2rem;
+    }
+    .testi-author { display: flex; align-items: center; gap: 1rem; }
+    .testi-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 600; color: #0a0e1a;
+      font-family: 'Syne', sans-serif;
+    }
+    .testi-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; }
+    .testi-role { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* CTA */
+    .cta-section {
+      padding: 7rem 3rem; text-align: center;
+      background: linear-gradient(180deg, var(--bg) 0%, #06091a 100%);
+      position: relative; overflow: hidden;
+    }
+    .cta-glow {
+      position: absolute; width: 600px; height: 300px;
+      background: radial-gradient(ellipse, rgba(0,229,255,0.1), transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%,-50%);
+      pointer-events: none;
+    }
+    .cta-title {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: clamp(2.5rem, 6vw, 5rem); line-height: 1.0;
+      letter-spacing: -0.03em; margin-bottom: 1.5rem;
+      position: relative; z-index: 1;
+    }
+    .cta-sub {
+      font-family: 'Fraunces', serif; font-style: italic;
+      color: var(--muted); font-size: 1.1rem; margin-bottom: 2.5rem;
+      position: relative; z-index: 1;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border); padding: 3rem;
+      background: var(--bg);
+    }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;
+    }
+    .footer-logo {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem;
+    }
+    .footer-logo span { color: var(--accent); }
+    .footer-links { display: flex; gap: 2rem; list-style: none; }
+    .footer-links a {
+      text-decoration: none; color: var(--muted);
+      font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--accent); }
+    .footer-copy { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.08em; }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero { padding: 7rem 1.5rem 3rem; }
+      .hero-stats { gap: 1.5rem; }
+      .features, .courses, .how, .testimonials, .cta-section { padding: 5rem 1.5rem; }
+      .how-step { grid-template-columns: 60px 1fr; }
+      .footer-inner { flex-direction: column; text-align: center; }
+      .footer-links { flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursor-ring"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">TECH<span>4</span>ED</div>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#courses">Courses</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#testimonials">Stories</a></li>
+    </ul>
+    <button class="nav-cta" onclick="document.getElementById('courses').scrollIntoView({behavior:'smooth'})">Get Started</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-blob blob1"></div>
+    <div class="hero-blob blob2"></div>
+    <div class="hero-inner">
+      <div class="hero-tag">Empowering the next generation of tech minds</div>
+      <h1 class="hero-title">
+        <span class="line">Learn the</span>
+        <span class="line accent">Technology</span>
+        <span class="line">of Tomorrow</span>
+      </h1>
+      <p class="hero-sub">Bridging the gap between education and emerging technology. Real skills, real projects, real futures.</p>
+      <div class="hero-actions">
+        <a href="#courses" class="btn-primary">Explore Courses</a>
+        <a href="#how" class="btn-secondary">How it Works</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item"><span class="stat-num" data-target="12000">0</span><span class="stat-label">Students</span></div>
+        <div class="stat-item"><span class="stat-num" data-target="48">0</span><span class="stat-label">Courses</span></div>
+        <div class="stat-item"><span class="stat-num" data-target="96">0</span><span class="stat-label">Instructors</span></div>
+        <div class="stat-item"><span class="stat-num" data-target="30">0</span><span class="stat-label">Partners</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track" id="marquee">
+      <div class="marquee-item">Artificial Intelligence</div>
+      <div class="marquee-item">Web Development</div>
+      <div class="marquee-item">Cybersecurity</div>
+      <div class="marquee-item">Data Science</div>
+      <div class="marquee-item">Cloud Computing</div>
+      <div class="marquee-item">Robotics</div>
+      <div class="marquee-item">Machine Learning</div>
+      <div class="marquee-item">Blockchain</div>
+      <div class="marquee-item">IoT</div>
+      <div class="marquee-item">Artificial Intelligence</div>
+      <div class="marquee-item">Web Development</div>
+      <div class="marquee-item">Cybersecurity</div>
+      <div class="marquee-item">Data Science</div>
+      <div class="marquee-item">Cloud Computing</div>
+      <div class="marquee-item">Robotics</div>
+      <div class="marquee-item">Machine Learning</div>
+      <div class="marquee-item">Blockchain</div>
+      <div class="marquee-item">IoT</div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div class="section-label">Why TECH4ED</div>
+      <h2 class="section-title">Built Different.<br>Built for You.</h2>
+      <p class="section-body" style="max-width:520px;">Every tool, resource, and pathway has been designed with one goal — to make technology education accessible, engaging, and genuinely transformative.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-name">Adaptive Learning Paths</div>
+        <div class="feature-desc">AI-powered curriculum that adapts to your pace, strengths, and learning style. No two students follow the exact same path.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔬</div>
+        <div class="feature-name">Hands-On Labs</div>
+        <div class="feature-desc">Browser-based coding environments, sandboxed simulations, and real-world projects. Learn by building, not just watching.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-name">Industry Mentorship</div>
+        <div class="feature-desc">Live sessions with engineers and researchers from leading tech companies. Ask questions, get real answers.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏆</div>
+        <div class="feature-name">Recognized Certificates</div>
+        <div class="feature-desc">Earn credentials that employers trust. Our certifications are co-designed with tech partners to reflect real skill demands.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤝</div>
+        <div class="feature-name">Peer Collaboration</div>
+        <div class="feature-desc">Study groups, team challenges, and a global student community. Tech is better when built together.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <div class="feature-name">Learn Anywhere</div>
+        <div class="feature-desc">Fully responsive platform. Offline mode, mobile apps, and downloadable resources. Education fits your schedule.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COURSES -->
+  <section class="courses" id="courses">
+    <div class="courses-header">
+      <div class="section-label">Course Catalog</div>
+      <h2 class="section-title">Start Your Track</h2>
+      <p class="section-body">Six high-demand disciplines. Hundreds of hours of expert-crafted content. One platform.</p>
+    </div>
+    <div class="courses-grid">
+      <div class="course-card">
+        <div class="course-thumb thumb-ai">
+          <div class="course-thumb-grid"></div>🤖
+        </div>
+        <div class="course-body">
+          <span class="course-tag">AI / ML</span>
+          <div class="course-name">Artificial Intelligence Fundamentals</div>
+          <div class="course-desc">From neural networks to large language models. Build your first AI from scratch and deploy it in the cloud.</div>
+          <div class="course-meta">
+            <span class="course-level">⬛⬛⬜ Intermediate · 40 hrs</span>
+            <button class="course-enroll">Enroll →</button>
+          </div>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb thumb-code">
+          <div class="course-thumb-grid"></div>💻
+        </div>
+        <div class="course-body">
+          <span class="course-tag">Programming</span>
+          <div class="course-name">Full-Stack Code Mastery</div>
+          <div class="course-desc">HTML to backend APIs. Learn Python, JavaScript, and SQL while building five complete projects for your portfolio.</div>
+          <div class="course-meta">
+            <span class="course-level">⬛⬜⬜ Beginner · 60 hrs</span>
+            <button class="course-enroll">Enroll →</button>
+          </div>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb thumb-data">
+          <div class="course-thumb-grid"></div>📊
+        </div>
+        <div class="course-body">
+          <span class="course-tag">Data Science</span>
+          <div class="course-name">Data Analysis & Visualization</div>
+          <div class="course-desc">Turn raw data into compelling stories. Master pandas, matplotlib, and Power BI with real-world datasets.</div>
+          <div class="course-meta">
+            <span class="course-level">⬛⬛⬜ Intermediate · 35 hrs</span>
+            <button class="course-enroll">Enroll →</button>
+          </div>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb thumb-cyber">
+          <div class="course-thumb-grid"></div>🔐
+        </div>
+        <div class="course-body">
+          <span class="course-tag">Cybersecurity</span>
+          <div class="course-name">Ethical Hacking & Defense</div>
+          <div class="course-desc">Learn how attackers think — and how to stop them. Penetration testing, CTF challenges, and security architecture.</div>
+          <div class="course-meta">
+            <span class="course-level">⬛⬛⬛ Advanced · 50 hrs</span>
+            <button class="course-enroll">Enroll →</button>
+          </div>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb thumb-web">
+          <div class="course-thumb-grid"></div>🌍
+        </div>
+        <div class="course-body">
+          <span class="course-tag">Web Dev</span>
+          <div class="course-name">Modern Web Design & UX</div>
+          <div class="course-desc">Design-led development. Create pixel-perfect, accessible interfaces with React, Figma, and CSS mastery.</div>
+          <div class="course-meta">
+            <span class="course-level">⬛⬜⬜ Beginner · 45 hrs</span>
+            <button class="course-enroll">Enroll →</button>
+          </div>
+        </div>
+      </div>
+      <div class="course-card">
+        <div class="course-thumb thumb-robot">
+          <div class="course-thumb-grid"></div>⚙️
+        </div>
+        <div class="course-body">
+          <span class="course-tag">Robotics</span>
+          <div class="course-name">Robotics & Embedded Systems</div>
+          <div class="course-desc">Build physical computing projects with Arduino, Raspberry Pi, and sensor networks. Hardware meets software.</div>
+          <div class="course-meta">
+            <span class="course-level">⬛⬛⬜ Intermediate · 55 hrs</span>
+            <button class="course-enroll">Enroll →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how" id="how">
+    <div class="how-inner">
+      <div class="section-label">The Process</div>
+      <h2 class="section-title">Simple Path.<br>Serious Results.</h2>
+      <p class="section-body">Four steps from signup to career-ready. No fluff, no filler — just structured progression toward real competence.</p>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="step-num" data-n="01">01</div>
+          <div class="step-content">
+            <h3>Create Your Profile</h3>
+            <p>Tell us your goals, experience level, and learning preferences. Our system maps the optimal curriculum for your specific journey.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num" data-n="02">02</div>
+          <div class="step-content">
+            <h3>Choose Your Track</h3>
+            <p>Pick from six high-demand tech disciplines. Each track is structured in progressive modules — from foundations to advanced specializations.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num" data-n="03">03</div>
+          <div class="step-content">
+            <h3>Build Real Projects</h3>
+            <p>Every module ends with a hands-on project. Build a portfolio of work that demonstrates genuine competency to employers and collaborators.</p>
+          </div>
+        </div>
+        <div class="how-step">
+          <div class="step-num" data-n="04">04</div>
+          <div class="step-content">
+            <h3>Earn & Launch</h3>
+            <p>Complete your track, earn your certificate, and connect with our hiring partner network. Your next chapter starts here.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials" id="testimonials">
+    <div style="max-width:1200px; margin:0 auto;">
+      <div class="section-label">Student Stories</div>
+      <h2 class="section-title">They Learned.<br>They Built. They Launched.</h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <p class="testi-quote">TECH4ED completely changed my trajectory. I went from zero coding knowledge to landing a junior dev role in seven months. The projects made all the difference.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">AL</div>
+          <div>
+            <div class="testi-name">Andrea L.</div>
+            <div class="testi-role">Junior Developer, Startup Philippines</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <p class="testi-quote">The cybersecurity track is genuinely world-class. The CTF challenges pushed me further than any university course I've taken. Earned my first cert in three months.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">MR</div>
+          <div>
+            <div class="testi-name">Marco R.</div>
+            <div class="testi-role">Security Analyst, FinTech Co.</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <p class="testi-quote">As a teacher, I use TECH4ED in my classroom. My students are engaged in ways I've never seen before. The labs make abstract concepts tangible and exciting.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">SV</div>
+          <div>
+            <div class="testi-name">Sofia V.</div>
+            <div class="testi-role">STEM Teacher, Lipa City National HS</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-glow"></div>
+    <div class="section-label" style="justify-content:center;">Ready?</div>
+    <h2 class="cta-title">The Future<br>Won't Wait</h2>
+    <p class="cta-sub">Join 12,000+ students already building tomorrow's technology today.</p>
+    <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+      <a href="#courses" class="btn-primary">Start Learning Free</a>
+      <a href="#features" class="btn-secondary">See All Features</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-logo">TECH<span>4</span>ED</div>
+      <ul class="footer-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#courses">Courses</a></li>
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="#testimonials">Stories</a></li>
+      </ul>
+      <div class="footer-copy">© 2026 TECH4ED. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    function animCursor() {
+      cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+      rx += (mx - rx) * 0.12; ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(animCursor);
+    }
+    animCursor();
+    document.querySelectorAll('a, button, [onclick]').forEach(el => {
+      el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2)'; ring.style.opacity = '0.2'; });
+      el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.opacity = '0.5'; });
+    });
+
+    // Counter animation
+    function animCount(el, target, suffix = '') {
+      let current = 0;
+      const inc = target / 60;
+      const timer = setInterval(() => {
+        current = Math.min(current + inc, target);
+        el.textContent = (current >= 1000 ? Math.round(current / 1000) + 'K+' : Math.round(current) + suffix);
+        if (current >= target) clearInterval(timer);
+      }, 24);
+    }
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('.stat-num').forEach(el => {
+            const t = parseInt(el.dataset.target);
+            animCount(el, t, t >= 100 ? '+' : '+');
+          });
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.3 });
+    const statsEl = document.querySelector('.hero-stats');
+    if (statsEl) observer.observe(statsEl);
+
+    // How-it-works scroll reveal
+    const stepObserver = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 120);
+        }
+      });
+    }, { threshold: 0.2 });
+    document.querySelectorAll('.how-step').forEach(el => stepObserver.observe(el));
+
+    // Smooth scroll for all internal anchors
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+
+    // Enroll button
+    document.querySelectorAll('.course-enroll').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.textContent = '✓ Enrolled!';
+        btn.style.color = '#10b981';
+        setTimeout(() => { btn.textContent = 'Enroll →'; btn.style.color = ''; }, 2000);
+      });
+    });
+  </script>
+</body>
+</html>
